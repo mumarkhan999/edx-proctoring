@@ -7,5 +7,10 @@ $(function() {
         proctored_template: '#proctored-exam-status-tpl',
         model: new ProctoredExamModel()
     });
+    var proctoredExamInfoView = new edx.courseware.proctored_exam.ProctoredExamInfo({
+        el: $('.proctor-test'),
+        model: new LearnerOnboardingModel()
+    });
     proctoredExamView.render();
+    proctoredExamInfoView.render();
 });

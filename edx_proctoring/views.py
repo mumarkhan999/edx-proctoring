@@ -285,6 +285,33 @@ class ProctoredExamView(ProctoredAPIView):
         return Response(data)
 
 
+class StudentOnboardingStatusView(ProctoredAPIView):
+    def get(self, request):
+        course_id = request.GET.get('course_id');
+        onboarding_attempts = ProctoredExamStudentAttempt.objects.filter(
+            proctored_exam__course_id=course_id,
+            proctored_exam__is_practice_exam=True,
+            user__username=request.user.username,
+            taking_as_proctored=True,
+        ).order_by('-completed_at')
+
+        onboarding_exam = ProctoredExam.objects.filter(course_id=course_id,
+            is_active=True,
+            is_practice_exam=True
+        ).first()
+
+        # hack, just grab first entry
+        onboarding_attempt = onboarding_attempts.first()
+        status = onboarding_attempt.status if onboarding_attempt else None
+
+        # put some thought into what we return here
+        data = {
+            'onboarding_status': status,
+            'onboarding_link': reverse('jump_to', args=[course_id, onboarding_exam.content_id])
+        }
+        return Response(data)
+
+
 class StudentProctoredExamAttempt(ProctoredAPIView):
     """
     Endpoint for the StudentProctoredExamAttempt
